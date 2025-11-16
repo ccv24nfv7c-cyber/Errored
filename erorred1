@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Errored - Python Challenge</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<style>
+body { font-family: Arial; max-width: 700px; margin: auto; padding: 20px; background: #f9f9f9; }
+h1, h2 { text-align: center; }
+input, textarea { width: 100%; padding: 10px; margin: 5px 0; }
+button { padding: 10px 15px; cursor: pointer; margin-top: 10px; }
+pre { background: #eee; padding: 10px; border-radius: 5px; overflow-x: auto; }
+ul { list-style: none; padding-left: 0; }
+li { margin-bottom: 5px; background: #fff; padding: 5px 10px; border-radius: 3px; }
+#randomUser { margin-top: 10px; font-weight: bold; text-align: center; }
+</style>
+</head>
+<body>
+
+<h1>Errored</h1>
+
+<h2>Today's Buggy Python Code:</h2>
+<pre id="buggyCode">
+def add_numbers(a, b):
+    return a + b
+
+print(add_numbers(2))  # Missing second argument
+</pre>
+
+<h2>Submit Your Fix:</h2>
+<input id="username" type="text" placeholder="Username">
+<input id="email" type="email" placeholder="Email">
+<textarea id="submission" placeholder="Write your fixed code here"></textarea>
+<button id="submitBtn">Submit Fix</button>
+
+<h2>Leaderboard</h2>
+<ul id="leaderboard"></ul>
+
+<button id="randomBtn">Pick Random User</button>
+<p id="randomUser"></p>
+
+<script>
+const supabaseUrl = 'https://uitlzagnkjyluemejmpl.supabase.co';  // replace with your URL
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVpdGx6YWdua2p5bHVlbWVqbXBsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMyNjU0NTgsImV4cCI6MjA3ODg0MTQ1OH0.cVslZ9kaa6q2Ss1kXFcV2f6VL4H288kX4DKicO6w_Yg';      // replace with your anon key
+const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+// Submit a fix
+async function submitFix() {
+    const username = document.getElementById('username').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const submission = document.getElementById('submission').value.trim();
+
+    if(!username || !email || !submission) {
+        alert("Please fill all fields!");
+        return;
+    }
+
+    const { data, error } = await supabase
+        .from('submissions')
+        .insert([{ username, email, submission }]);
+
+    if(error) {
+        console.error("Error:", error);
+        alert("Failed to submit fix!");
+    } else {
+        alert("Fix submitted!");
+        getLeaderboard();
+    }
+}
+
+// Fetch top 10 leaderboard
+async function getLeaderboard() {
+    const { data, error } = await supabase
+        .from('submissions')
+        .select('*')
+        .order('timestamp', { ascending: true })
+        .limit(10);
+
+    const list = document.getElementById('leaderboard');
+    list.innerHTML = '';
+
+    if(data) {
+        data.forEach((row, index) => {
+            const li = document.createElement('li');
+            li.textContent = `${index + 1}. ${row.username} - ${row.submission}`;
+            list.appendChild(li);
+        });
+    }
+}
+
+// Pick a random user
+async function getRandomUser() {
+    const { data, error } = await supabase.from('submissions').select('*');
+    if(!data || data.length === 0) return;
+
+    const random = data[Math.floor(Math.random() * data.length)];
+    document.getElementById('randomUser').textContent = `Random pick: ${random.username} (${random.email})`;
+}
+
+// Event listeners
+document.getElementById('submitBtn').addEventListener('click', submitFix);
+document.getElementById('randomBtn').addEventListener('click', getRandomUser);
+
+// Load leaderboard initially
+getLeaderboard();
+</script>
+
+</body>
+</html>
