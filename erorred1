@@ -10,7 +10,7 @@ h1, h2 { text-align: center; }
 input, textarea { width: 100%; padding: 10px; margin: 5px 0; }
 button { padding: 10px 15px; cursor: pointer; margin-top: 10px; }
 pre { background: #eee; padding: 10px; border-radius: 5px; overflow-x: auto; }
-ul { list-style: none; padding-left: 0; }
+ul { list-style: none; padding-left: 0; } 
 li { margin-bottom: 5px; background: #fff; padding: 5px 10px; border-radius: 3px; }
 #randomUser { margin-top: 10px; font-weight: bold; text-align: center; }
 </style>
